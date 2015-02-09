@@ -51,7 +51,8 @@ class JoueurFonceur(SoccerStrategy):
             teamadverse=2
             if teamid==2:
                 teamadverse=1    
-            shoot= (state.get_goal_center(teamadverse)-player.position)
+            shoot= Vector2D(GAME_WIDTH*10, 0)
+        
             
         return SoccerAction(pos,shoot)
     def copy(self):
@@ -96,7 +97,7 @@ class ComposeStrategy(SoccerStrategy):
       
 class DefenseurContreAttaque(SoccerStrategy):
     def __init__(self):
-        self.name="Defenseur"
+        self.name="DefenseurContreAttaque"
     def start_battle(self,state):
         pass
     def finish_battle(self,won):
@@ -130,7 +131,7 @@ class DefenseurContreAttaque(SoccerStrategy):
         
 class GoalContreAttaque(SoccerStrategy):
     def __init__(self):
-        self.name="Defenseur"
+        self.name="GoalContreAttaque"
     def start_battle(self,state):
         pass
     def finish_battle(self,won):

@@ -1,4 +1,4 @@
 
-from main.py import teams
-from main.py import names
+from main1.py import teams
+from main1.py import names
 
