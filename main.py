@@ -18,5 +18,5 @@ ArgentinaFC.add_player(SoccerPlayer("t2j2",RandomStrategy()))
 ArgentinaFC.add_player(SoccerPlayer("t2j3",GoalContreAttaque()))
 ArgentinaFC.add_player(SoccerPlayer("t2j3",DefenseurContreAttaque()))
 
-teams = [BocaJuniors, BocaJuniors]
+teams = [BocaJuniors, ArgentinaFC]
 names = "MAUFC"
