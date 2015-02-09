@@ -77,36 +77,6 @@ class AllerVersPoint(SoccerStrategy):
         return AllerVersPoint(self.destination)
     def create_strategy(self):
         return AllerVersPoint(self.destination)
-
-
-class Defenseur(SoccerStrategy):
-    def __init__(self):
-        self.name="Defenseur"
-    def start_battle(self,state):
-        pass
-    def finish_battle(self,won):
-        pass
-    def compute_strategy(self,state,player,teamid):
-        shoot = Vector2D(0,0)
-        if (state.ball.position.distance(player.position))>(5*(PLAYER_RADIUS+BALL_RADIUS)):
-            if (teamAdverse(teamid)==2):
-                pos = Vector2D((1.5/5)*GAME_WIDTH,state.ball.position.y)-player.position
-            else:
-                pos = Vector2D((3.5/5)*GAME_WIDTH,state.ball.position.y)-player.position
-        else:
-            pos= state.ball.position-player.position
-            
-        
-        
-        if (PLAYER_RADIUS+BALL_RADIUS)>=(state.ball.position.distance(player.position)):
-            shoot= (state.get_goal_center(teamAdverse(teamid))-player.position)
-            
-        return SoccerAction(pos,shoot)
-        
-    def copy(self):
-        return Defenseur()
-    def create_strategy(self):
-        return Defenseur()
         
 
 class ComposeStrategy(SoccerStrategy):
@@ -123,3 +93,106 @@ class ComposeStrategy(SoccerStrategy):
         return ComposeStrategy(self.vitesse.copy(), self.tir.copy())
     def create_strategy(self):
         return ComposeStrategy(self.vitesse, self.tir)
+      
+class DefenseurContreAttaque(SoccerStrategy):
+    def __init__(self):
+        self.name="Defenseur"
+    def start_battle(self,state):
+        pass
+    def finish_battle(self,won):
+        pass
+    def compute_strategy(self,state,player,teamid):
+        shoot = Vector2D(0,0)
+        d = state.ball.position - player.position
+        if d.norm > 25 :
+            if (teamAdverse(teamid)==2):
+                pos = Vector2D((1.2/5)*GAME_WIDTH,state.ball.position.y)-player.position
+            else:
+                pos = Vector2D((3.7/5)*GAME_WIDTH,state.ball.position.y)-player.position
+        else:
+            pos= state.ball.position-player.position
+            shoot= (state.get_goal_center(teamAdverse(teamid))-player.position)
+            
+        
+        
+        if (PLAYER_RADIUS+BALL_RADIUS)>=(state.ball.position.distance(player.position)):
+            shoot= (state.get_goal_center(teamAdverse(teamid))-player.position)
+           
+            
+        return SoccerAction(pos,shoot)
+        
+    def copy(self):
+        return DefenseurContreAttaque()
+    def create_strategy(self):
+        return DefenseurContreAttaque()
+        
+             
+        
+class GoalContreAttaque(SoccerStrategy):
+    def __init__(self):
+        self.name="Defenseur"
+    def start_battle(self,state):
+        pass
+    def finish_battle(self,won):
+        pass
+    def compute_strategy(self,state,player,teamid):
+        shoot = Vector2D(0,0)
+        d = state.ball.position - player.position
+        if d.norm > 30 :
+            if (teamAdverse(teamid)==2):
+                pos = Vector2D((0.2/5)*GAME_WIDTH,state.ball.position.y)-player.position
+            else:
+                pos = Vector2D((4.8/5)*GAME_WIDTH,state.ball.position.y)-player.position
+        else:
+            pos= state.ball.position-player.position
+            shoot= (state.get_goal_center(teamAdverse(teamid))-player.position)
+            
+        
+        
+        if (PLAYER_RADIUS+BALL_RADIUS)>=(state.ball.position.distance(player.position)):
+            shoot= (state.get_goal_center(teamAdverse(teamid))-player.position)
+           
+            
+        return SoccerAction(pos,shoot)
+        
+    def copy(self):
+        return GoalContreAttaque()
+    def create_strategy(self):
+        return GoalContreAttaque()
+        
+        
+class Goal(SoccerStrategy):
+    def __init__(self):
+        self.name="Defenseur"
+    def start_battle(self,state):
+        pass
+    def finish_battle(self,won):
+        pass
+    def compute_strategy(self,state,player,teamid):
+        shoot = Vector2D(0,0)
+        d = state.ball.position - player.position
+        if d.norm > 30 :
+            if (teamAdverse(teamid)==2):
+                pos = Vector2D((0.2/5)*GAME_WIDTH,state.ball.position.y)-player.position
+            else:
+                pos = Vector2D((4.8/5)*GAME_WIDTH,state.ball.position.y)-player.position
+        else:
+            pos= state.ball.position-player.position
+            shoot= (state.get_goal_center(teamAdverse(teamid))*0.1-player.position)
+            
+        
+        
+        if (PLAYER_RADIUS+BALL_RADIUS)>=(state.ball.position.distance(player.position)):
+            shoot= (state.get_goal_center(teamAdverse(teamid))*0.1-player.position)
+           
+            
+        return SoccerAction(pos,shoot)
+        
+    def copy(self):
+        return GoalContreAttaque()
+    def create_strategy(self):
+        return GoalContreAttaque()
+        
+
+        
+        
