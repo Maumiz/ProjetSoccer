@@ -18,6 +18,6 @@ team2.add_player(SoccerPlayer("t2j2",RandomStrategy()))
 team2.add_player(SoccerPlayer("t2j3",GoalContreAttaque()))
 team2.add_player(SoccerPlayer("t2j4",DefenseurContreAttaque()))
 
-teams = [BocaJuniors, ArgentinaFC]
+teams = [team1, team2]
 names = "MAUFC"
 
