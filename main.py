@@ -10,13 +10,13 @@ from soccersimulator import SoccerBattle, SoccerTeam, SoccerPlayer
 from classes import *
 
 team1=SoccerTeam("BocaJuniors")
-team2=SoccerTeam("team2")
+team2=SoccerTeam("ArgentinaFC")
 BocaJuniors.add_player(SoccerPlayer("t1j1",JoueurFonceur()))
 BocaJuniors.add_player(SoccerPlayer("t1j2",RandomStrategy()))
-team2.add_player(SoccerPlayer("t2j1",ComposeStrategy(DefenseurContreAttaque(), JoueurFonceur())))
-team2.add_player(SoccerPlayer("t2j2",RandomStrategy()))
-team2.add_player(SoccerPlayer("t2j3",GoalContreAttaque()))
-team2.add_player(SoccerPlayer("t2j3",DefenseurContreAttaque()))
+ArgentinaFC.add_player(SoccerPlayer("t2j1",ComposeStrategy(DefenseurContreAttaque(), JoueurFonceur())))
+ArgentinaFC.add_player(SoccerPlayer("t2j2",RandomStrategy()))
+ArgentinaFC.add_player(SoccerPlayer("t2j3",GoalContreAttaque()))
+ArgentinaFC.add_player(SoccerPlayer("t2j3",DefenseurContreAttaque()))
 
-teams = [team1, team2]
+teams = [BocaJuniors, BocaJuniors]
 names = "MAUFC"
