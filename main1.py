@@ -10,13 +10,22 @@ from soccersimulator import SoccerBattle, SoccerTeam, SoccerPlayer
 from classes import *
 
 team1=SoccerTeam("BocaJuniors")
-team2=SoccerTeam("ArgentinaFC")
 team1.add_player(SoccerPlayer("t1j1",JoueurFonceur()))
-team1.add_player(SoccerPlayer("t1j2",RandomStrategy()))
+team1.add_player(SoccerPlayer("t1j2",GoalContreAttaque()))
+
+
+team2=SoccerTeam("ArgentinaFC")
 team2.add_player(SoccerPlayer("t2j1",ComposeStrategy(DefenseurContreAttaque(), JoueurFonceur())))
 team2.add_player(SoccerPlayer("t2j2",RandomStrategy()))
 team2.add_player(SoccerPlayer("t2j3",GoalContreAttaque()))
 team2.add_player(SoccerPlayer("t2j4",DefenseurContreAttaque()))
+
+team3=SoccerTeam("MaradonaFC")
+team2.add_player(SoccerPlayer("t2j1",ComposeStrategy(GoalContreAttaque(), JoueurFonceur())))
+
+
+
+
 
 teams = [team1, team2]
 
