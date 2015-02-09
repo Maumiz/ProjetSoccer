@@ -171,28 +171,30 @@ class Goal(SoccerStrategy):
         pass
     def compute_strategy(self,state,player,teamid):
         shoot = Vector2D(0,0)
-        d = state.ball.position - player.position
-        if d.norm > 30 :
+        d = state.get_goal_center(teamid) - state.ball.position
+        if d.norm > (0.3)*GAME_WIDTH or player.position.x<((3/4)*GAME_WIDTH) :
             if (teamAdverse(teamid)==2):
-                pos = Vector2D((0.2/5)*GAME_WIDTH,state.ball.position.y)-player.position
+                acceleration = Vector2D((0.2/5)*GAME_WIDTH,state.ball.position.y)-player.position
             else:
-                pos = Vector2D((4.8/5)*GAME_WIDTH,state.ball.position.y)-player.position
+                acceleration = Vector2D((4.8/5)*GAME_WIDTH,state.ball.position.y)-player.position
         else:
-            pos= state.ball.position-player.position
-            shoot= (state.get_goal_center(teamAdverse(teamid))*0.1-player.position)
+            acceleration = state.ball.position-player.position
+           
             
         
         
         if (PLAYER_RADIUS+BALL_RADIUS)>=(state.ball.position.distance(player.position)):
-            shoot= (state.get_goal_center(teamAdverse(teamid))*0.1-player.position)
+       
+            shoot = Vector2D.create_polar(state.ball.position.norm*(-1), state.ball.position.angle+(3.14/4))
+            acceleration = Vector2D(0,0)
            
             
-        return SoccerAction(pos,shoot)
+        return SoccerAction(acceleration,shoot)
         
     def copy(self):
-        return GoalContreAttaque()
+        return Goal()
     def create_strategy(self):
-        return GoalContreAttaque()
+        return Goal()
         
 
         
