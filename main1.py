@@ -19,5 +19,5 @@ team2.add_player(SoccerPlayer("t2j3",GoalContreAttaque()))
 team2.add_player(SoccerPlayer("t2j4",DefenseurContreAttaque()))
 
 teams = [team1, team2]
-names = "MAUFC"
+
 
