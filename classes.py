@@ -51,7 +51,7 @@ class JoueurFonceur(SoccerStrategy):
             teamadverse=2
             if teamid==2:
                 teamadverse=1    
-            shoot= Vector2D(GAME_WIDTH*10, 0)
+            shoot= (state.get_goal_center(teamAdverse(teamid))-player.position)
         
             
         return SoccerAction(pos,shoot)
@@ -172,7 +172,8 @@ class Goal(SoccerStrategy):
     def compute_strategy(self,state,player,teamid):
         shoot = Vector2D(0,0)
         d = state.get_goal_center(teamid) - state.ball.position
-        if d.norm > (0.3)*GAME_WIDTH or player.position.x<((3/4)*GAME_WIDTH) :
+        p = state.get_goal_center(teamid) - player.position
+        if d.norm > (0.3)*GAME_WIDTH or player.position.y > 65 or player.position.y < 25 :
             if (teamAdverse(teamid)==2):
                 acceleration = Vector2D((0.2/5)*GAME_WIDTH,state.ball.position.y)-player.position
             else:
@@ -195,6 +196,10 @@ class Goal(SoccerStrategy):
         return Goal()
     def create_strategy(self):
         return Goal()
+        
+
+        
+    
         
 
         
