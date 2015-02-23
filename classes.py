@@ -48,9 +48,7 @@ class JoueurFonceur(SoccerStrategy):
         pos = state.ball.position-player.position
         shoot = Vector2D(0,0)
         if (PLAYER_RADIUS+BALL_RADIUS)>=(state.ball.position.distance(player.position)):
-            teamadverse=2
-            if teamid==2:
-                teamadverse=1    
+            teamAdverse(teamid)  
             shoot= (state.get_goal_center(teamAdverse(teamid))-player.position)
         
             
@@ -62,7 +60,7 @@ class JoueurFonceur(SoccerStrategy):
         
         
 class AllerVersPoint(SoccerStrategy):
-    def __init__(self, destination):
+    def __init__(self, destination=Vector2D()):
         self.name="allerverspoint"
         self.destination=destination
     def start_battle(self,state):
@@ -172,12 +170,10 @@ class Goal(SoccerStrategy):
     def compute_strategy(self,state,player,teamid):
         shoot = Vector2D(0,0)
         d = state.get_goal_center(teamid) - state.ball.position
-        p = state.get_goal_center(teamid) - player.position
-        if d.norm > (0.3)*GAME_WIDTH or player.position.y > 65 or player.position.y < 25 :
-            if (teamAdverse(teamid)==2):
-                acceleration = Vector2D((0.2/5)*GAME_WIDTH,state.ball.position.y)-player.position
-            else:
-                acceleration = Vector2D((4.8/5)*GAME_WIDTH,state.ball.position.y)-player.position
+      
+        if d.norm > (0.3)*GAME_WIDTH or player.position.y > (GAME_HEIGHT)*4.0/5 or player.position.y < (GAME_HEIGHT)*1.0/5 and state.ball.position.x<(0.5)*GAME_WIDTH :
+        
+            acceleration = state.get_goal_center(teamid) - player.position
         else:
             acceleration = state.ball.position-player.position
            
@@ -185,8 +181,10 @@ class Goal(SoccerStrategy):
         
         
         if (PLAYER_RADIUS+BALL_RADIUS)>=(state.ball.position.distance(player.position)):
-       
-            shoot = Vector2D.create_polar(state.ball.position.norm*(-1), state.ball.position.angle+(3.14/4))
+            p = state.get_goal_center(teamAdverse(teamid)) - state.ball.position            
+        else:
+            acceleration = state.ball.position-player.position
+            shoot = Vector2D.create_polar((p.angle)+3.14/8, p.norm)
             acceleration = Vector2D(0,0)
            
             
@@ -197,9 +195,150 @@ class Goal(SoccerStrategy):
     def create_strategy(self):
         return Goal()
         
-
         
+class Defenseur(SoccerStrategy):
+    def __init__(self):
+        self.name="Defenseur"
+    def start_battle(self,state):
+        pass
+    def finish_battle(self,won):
+        pass
+    def compute_strategy(self,state,player,teamid):
+        shoot = Vector2D(0,0)
+        d = state.get_goal_center(teamid) - state.ball.position
+      
+        if d.norm > (0.3)*GAME_WIDTH or player.position.y > (GAME_HEIGHT)*4.0/5 or player.position.y < (GAME_HEIGHT)*1.0/5 and state.ball.position.x<(0.5)*GAME_WIDTH :
+            if (teamAdverse(teamid)==2):
+                pos = Vector2D((1.2/5)*GAME_WIDTH,state.ball.position.y)-player.position
+            else:
+                pos = Vector2D((3.7/5)*GAME_WIDTH,state.ball.position.y)-player.position
+                
+        else:
+            acceleration = state.ball.position-player.position
+            shoot = Vector2D.create_polar((p.angle)+3.14/8, p.norm)
+            acceleration = Vector2D(0,0)
+           
+            
+        return SoccerAction(acceleration,shoot)
+        
+    def copy(self):
+        return Defenseur()
+    def create_strategy(self):
+        return Defenseur()
+        
+        
+class EviteBall(SoccerStrategy):
+    def __init__(self):
+        self.name="Evite"
+    def start_battle(self,state):
+        pass
+    def finish_battle(self,won):
+        pass
+    def compute_strategy(self,state,player,teamid):
+        shoot = Vector2D(0,0)
+        d = state.ball.position - player.position
+        goalAdverse = state.get_goal_center(teamAdverse(teamid))
+        
+        
+        if (d.norm<=GAME_WIDTH*0.2):
+             acceleration = state.ball.speed
+        else:
+             acceleration = Vector2D (0, d.y)
+             
+        
+        return SoccerAction(acceleration,shoot)
+        
+    def copy(self):
+        return EviteBall()
+    def create_strategy(self):
+        return EviteBall()
+        
+            
+            
+        
+        
+        
+        
+'''
+       
+class Defenseur(SoccerStrategy):
+    def __init__(self):
+        self.name="Defenseur"
+        self.list=[Goal(),AllerVersPoint(),]
+    def start_battle(self,state):
+        pass
+    def finish_battle(self,won):
+        pass
+    def selector(self,state,player,teamid):
+        if (condition pour goal : ball proche des butsd):
+            return 0
+        if (condition ...) :
+            self.list[1].direction = ....
+            return 1
+        return -1
     
+    def compute_strategy(self,state,player,teamid):
+        
+        idx = self.selector(state,player,teamid)
+        return self.list[idx].compute_strategy(state,player,teamid)
+     
+         shoot = Vector2D(0,0)
+        d = state.ball.position - player.position
+        goalAdverse = state.get_goal_center(teamAdverse(teamid))
+        acceleration = Vector2D (0, d.y)
+        if (d.norm>GAME_WIDTH*0.2):
+            if (PLAYER_RADIUS+BALL_RADIUS)>=(state.ball.position.distance(player.position)):
+          
+                shoot= (state.get_goal_center(teamAdverse(teamid))-player.position)
+            
+
+        else: 
+            acceleration = state.ball.speed
+            
+                
+                 if (state.get_goal_center(teamid) - player.position >(0.1*(GAME_WIDTH))):
+                 acceleration = Vector2D(0, state.ball.speed.y)
+            
+   
+                
+            
+           
+            
+        return SoccerAction(acceleration,shoot)
+        
+    def copy(self):
+        return Defenseur()
+    def create_strategy(self):
+        return Defenseur()
+        
+        
+        
+class Dribbleur(SoccerStrategy):
+    def __init__(self):
+        self.name="Dribbleur"
+    def start_battle(self,state):
+        pass
+    def finish_battle(self,won):
+        pass
+    def compute_strategy(self,state,player,teamid):
+        pos = state.ball.position-player.position
+        shoot = Vector2D(0,0)
+        if (PLAYER_RADIUS+BALL_RADIUS)>=(state.ball.position.distance(player.position)):
+            teamAdverse(teamid)  
+            shoot= Vector2D(0.5,0.5)
+        
+            
+        return SoccerAction(pos,shoot)
+    def copy(self):
+        return Dribbleur()
+    def create_strategy(self):
+        return Dribbleur()
+        '''
+        
+        
+        
+        
+
         
 
         
