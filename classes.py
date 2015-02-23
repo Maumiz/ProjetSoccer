@@ -14,6 +14,39 @@ def teamAdverse(teamid):
     if (teamid==2):
         adv=1
     return adv
+    
+    
+def joueurAdverseProche(state, teamid, player):
+        teamadv = teamAdverse(teamid)
+        coord = None
+        if (teamadv==1):
+            list_joueurs = state.team1.players
+        else:
+            list_joueurs = state.team2.players
+        for p in list_joueurs:
+            if (p.position.distance(player.position) < (GAME_WIDTH*0.2) ) :
+                coord = p.position
+        return coord
+        
+def joueurAdversaireDerriere(state, teamid, player, adv):
+    teamadv = teamAdverse(teamid)
+    moi = player.position
+    a = False
+    if (adv!=None):
+        if (teamadv==1):
+            if(adv.x > moi.x):
+                a = True
+            else:
+                a = False
+        else:
+            if(adv.x<moi.x):
+                a = True
+            else:
+                a = False
+                    
+    return a
+        
+        
 
 
 
@@ -47,8 +80,7 @@ class JoueurFonceur(SoccerStrategy):
     def compute_strategy(self,state,player,teamid):
         pos = state.ball.position-player.position
         shoot = Vector2D(0,0)
-        if (PLAYER_RADIUS+BALL_RADIUS)>=(state.ball.position.distance(player.position)):
-            teamAdverse(teamid)  
+        if (PLAYER_RADIUS+BALL_RADIUS)>=(state.ball.position.distance(player.position)):    
             shoot= (state.get_goal_center(teamAdverse(teamid))-player.position)
         
             
@@ -182,7 +214,6 @@ class Goal(SoccerStrategy):
         
         if (PLAYER_RADIUS+BALL_RADIUS)>=(state.ball.position.distance(player.position)):
             p = state.get_goal_center(teamAdverse(teamid)) - state.ball.position            
-        else:
             acceleration = state.ball.position-player.position
             shoot = Vector2D.create_polar((p.angle)+3.14/8, p.norm)
             acceleration = Vector2D(0,0)
@@ -310,9 +341,11 @@ class Defenseur(SoccerStrategy):
         return Defenseur()
     def create_strategy(self):
         return Defenseur()
+    
         
-        
-        
+        '''
+     
+     
 class Dribbleur(SoccerStrategy):
     def __init__(self):
         self.name="Dribbleur"
@@ -321,23 +354,45 @@ class Dribbleur(SoccerStrategy):
     def finish_battle(self,won):
         pass
     def compute_strategy(self,state,player,teamid):
-        pos = state.ball.position-player.position
+        moi = player.position
+        adv = joueurAdverseProche(state, teamid, player)
         shoot = Vector2D(0,0)
-        if (PLAYER_RADIUS+BALL_RADIUS)>=(state.ball.position.distance(player.position)):
-            teamAdverse(teamid)  
-            shoot= Vector2D(0.5,0.5)
-        
+  
+        if (adv!=None):
+            tir= adv - moi
+            a = state.get_goal_center(teamAdverse(teamid))-player.position
+            if (adv.y<moi.y):
+                shoot = Vector2D.create_polar((tir.angle)+0.75, 1)
+                acceleration = state.ball.position - player.position
+                if (joueurAdversaireDerriere(state, teamid, player, adv)==True):
+                    shoot= (state.get_goal_center(teamAdverse(teamid))-player.position)
+                else:
+                    shoot = Vector2D.create_polar((tir.angle)+0.75, 1)
+                    
+            else:
+                shoot = Vector2D.create_polar((tir.angle)-0.75, 1)
+                acceleration = state.ball.position - player.position
+                if (joueurAdversaireDerriere(state, teamid, player, adv)==True):
+                    shoot= (state.get_goal_center(teamAdverse(teamid))-player.position)
+                else:
+                    shoot = Vector2D.create_polar((tir.angle)+0.75, 1)
+        else :
+            shoot = Vector2D.create_polar((state.get_goal_center(teamAdverse(teamid))-player.position).angle, 1)
+            acceleration = state.ball.position - player.position
             
-        return SoccerAction(pos,shoot)
+        return SoccerAction(acceleration,shoot)
     def copy(self):
         return Dribbleur()
     def create_strategy(self):
         return Dribbleur()
-        '''
+                
         
         
         
         
+        
+ 
+
 
         
 
