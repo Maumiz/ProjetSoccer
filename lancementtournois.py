@@ -1,22 +1,16 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Jan 26 19:32:52 2015
-
-@author: 3301031
-"""
-
-
 import os
 import sys
 import imp
 import soccersimulator
 import shutil
+import argparse
+import pickle
 
 TARGET_PATH="/tmp/tournoi"
 
 GIT_LIST_2015=[("Benlog","Soccer-AI"),("SebXIII","Projet"),("andrenasturas","2I013"),("AlexandreCasanova","projet"),\
             ("mariene","projet_foot"),("Leynad","ProjetFoot"),("ArezkiSky","Projet-soccer-2I013"),("Maumiz","ProjetSoccer"),\
-            ("kabylemak","soccerproject"),("timotheb","projet")]
+            ("kabylemak","soccerproject"),("timotheb","projet"),("orangemango","orange-soccer-team")]
 
 
 def load_from_github(login,project,git_import=True):
@@ -47,8 +41,8 @@ def load_from_github(login,project,git_import=True):
         club.name=mymod.name
     return club
 
-def load_tournament_git_list(name,git_list,git_import=True):
-    tournament = soccersimulator.SoccerTournament(name)
+def load_tournament_git_list(name,git_list,git_import=True,max_teams=5):
+    tournament = soccersimulator.SoccerTournament(name,max_teams=max_teams)
     for (login,project) in git_list:
         club  = load_from_github(login,project,git_import)
         tournament.add_club(club)
@@ -56,6 +50,33 @@ def load_tournament_git_list(name,git_list,git_import=True):
 
 
 if __name__=="__main__":
-    tournament = load_tournament_git_list("Test",GIT_LIST_2015, False)
-    tournament.init_battles()
-    tournament.do_battles()
+    parse = argparse.ArgumentParser(description="Soccersimulator Main")
+    parse.add_argument('-git',action='store_true',default=False,help="Import github")
+    parse.add_argument('-nb',action="store",dest='max_teams',type=int,default=2,help="Maximum number of teams per club")
+    parse.add_argument('-b', action="store_true",dest='battles',default=False,help="Do tournament")
+    parse.add_argument('-g', action="store",dest='nbgoals',default=10,help="Number of goals")
+    parse.add_argument('-time', action="store",dest='max_time',default=5000,help="Max time for a goal")
+    parse.add_argument('-nbp',nargs='+',type=int,help="List of type of tournament (number of player, 1,2 or 4)")
+    parse.add_argument('-login',nargs='+',default=None,help="List of logins to play")
+    parse.add_argument('-club',nargs='+',default=None,help="List of clubs to play")
+    parse.add_argument('-team',nargs='+',default=None,help='List of teams to play')
+    parse.add_argument('-only',action='store_true',default=False,help="If present, battles only between login|club|team passed as argument")
+    parse.add_argument('-o',action="store",default=None,help="Save the scores to file O ")
+    args=parse.parse_args()
+    tournament = load_tournament_git_list("Test",GIT_LIST_2015,max_teams=args.max_teams,git_import=args.git)
+    if args.battles:
+        tournament.init_battles()
+        if args.login or args.club or args.team:
+            res=tournament.do_some_battles(args.only,args.nbp,args.login,args.club,args.team,args.nbgoals,args.max_time)
+            scores = soccersimulator.SoccerTournament.build_scores(res)
+            print [(str(s.team),str(s)) for s in sorted(scores.values())]
+        else:
+            res=tournament.do_battles(args.nbgoals,args.max_time)
+            for nbp,btl in res.items():
+                print '%d tournament:' % (nbp,)
+                scores=soccersimulator.SoccerTournament.build_scores(btl)
+                print [(str(s.team),str(s)) for s in sorted(scores.values())]
+            scores=tournament.scores.copy()
+        if args.o:
+            with open(args.o,"wb") as f:
+                pickle.dump(scores,f)
