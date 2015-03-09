@@ -15,10 +15,10 @@ team1.add_player(SoccerPlayer("t1j2",GoalContreAttaque()))
 
 
 team2=SoccerTeam("Argentina 4v4")
-team2.add_player(SoccerPlayer("t2j1",Dribbleur()))
+team2.add_player(SoccerPlayer("t2j1",Attaquant()))
 team2.add_player(SoccerPlayer("t2j2",GoalContreAttaque()))
-team2.add_player(SoccerPlayer("t2j3",Dribbleur()))
-team2.add_player(SoccerPlayer("t2j4",Dribbleur()))
+team2.add_player(SoccerPlayer("t2j3",Intercepteur()))
+team2.add_player(SoccerPlayer("t2j4",Intercepteur()))
 
 team3=SoccerTeam("DiegoMaradona 1v1")
 team3.add_player(SoccerPlayer("t2j1",ComposeStrategy(GoalContreAttaque(), JoueurFonceur())))
