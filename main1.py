@@ -11,12 +11,12 @@ from classes import *
 
 team1=SoccerTeam("C.A BocaJuniors 2v2")
 team1.add_player(SoccerPlayer("t1j1",Dribbleur()))
-team1.add_player(SoccerPlayer("t1j2",GoalContreAttaque()))
+team1.add_player(SoccerPlayer("t1j2",Dribbleur()))
 
 
 team2=SoccerTeam("Argentina 4v4")
 team2.add_player(SoccerPlayer("t2j1",Attaquant()))
-team2.add_player(SoccerPlayer("t2j2",GoalContreAttaque()))
+team2.add_player(SoccerPlayer("t2j2",Goal()))
 team2.add_player(SoccerPlayer("t2j3",Intercepteur()))
 team2.add_player(SoccerPlayer("t2j4",Intercepteur()))
 
