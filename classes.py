@@ -191,12 +191,11 @@ class Tir(SoccerStrategy):
     def compute_strategy(self,state,player,teamid):
         pos = Vector2D(0,0)
         teamadv = teamAdverse(teamid)
-        acceleration = Vector2D(0,0)
         adv = joueurAdverseProche(state, teamid, player)
         print adv
         moi = player.position
-        goalhaut= state.get_goal_center(teamAdverse(teamid))+Vector2D(0,((GAME_GOAL_HEIGHT/2)*(4.0/5)))
-        goalbas= state.get_goal_center(teamAdverse(teamid))-Vector2D(0, ((GAME_GOAL_HEIGHT/2)*(4.0/5)))
+        goalhaut= state.get_goal_center(teamAdverse(teamid))+Vector2D(0,((GAME_GOAL_HEIGHT/2)*(3.8/5)))
+        goalbas= state.get_goal_center(teamAdverse(teamid))-Vector2D(0, ((GAME_GOAL_HEIGHT/2)*(3.8/5)))
         danscages = Estdanscages(state, player, teamid)
         if (BalleProche(state, player)):
                 if (danscages) and (adv!=None):
@@ -231,6 +230,18 @@ class AllerVersPoint(SoccerStrategy):
     def create_strategy(self):
         return AllerVersPoint(self.destination)
         
+class AllerVersBalle(SoccerStrategy):
+    def __init__(self):
+        self.dest = AllerVersPoint(Vector2D())
+    def start_battle(self,state):
+        pass
+    def finish_battle(self,won):
+        pass
+    def compute_strategy(self,state,player,teamid):
+        self.dest.destination = state.ball.position
+        shoot = Vector2D(0,0)
+        
+        return self.dest.compute_strategy(state,player,teamid)
 #degage la balle dans l'angle opposé à l'adversaire
 class Degagement(SoccerStrategy):
     def __init__(self):
@@ -561,7 +572,7 @@ class Dribbleur(SoccerStrategy):
 class Attaquant(SoccerStrategy):
     def __init__(self):
         self.dribble=Dribbleur()
-        self.tir=Tir()
+        self.tir=ComposeStrategy(AllerVersBalle(), Tir)
     def start_battle(self,state):
         pass
     def finish_battle(self,won):
