@@ -14,40 +14,47 @@ from soccersimulator import PygletObserver,ConsoleListener,LogListener
 ###################           ###############
 #############################################
 
+
+class Outil(SoccerStrategy):
+    def __init__(self, state, player, teamid):
+        self.state = state
+        self.player = player
+        self.teamid = teamid
+
 #retourne true si mon adversaire est dans ses cages
-def Estdanscages(state, player, teamid):
-    adv = joueurAdverseProche(state, teamid, player)
-    teamadv = teamAdverse(teamid)
-    if(adv!= None):
-        if(teamadv==1):
-            return ((adv.x<GAME_WIDTH*1.0/10) and (adv.y<state.get_goal_center(teamadv).y+(((GAME_GOAL_HEIGHT/2)*(4.0/5))))\
-                        and (adv.y>state.get_goal_center(teamadv).y-((GAME_GOAL_HEIGHT/2)*(4.0/5))))
+    def Estdanscages(self):
+        adv = joueurAdverseProche(state, teamid, player)
+        teamadv = teamAdverse(teamid)
+        if(adv!= None):
+            if(teamadv==1):
+                return ((adv.x<GAME_WIDTH*1.0/10) and (adv.y<state.get_goal_center(teamadv).y+(((GAME_GOAL_HEIGHT/2)*(4.0/5))))\
+                            and (adv.y>state.get_goal_center(teamadv).y-((GAME_GOAL_HEIGHT/2)*(4.0/5))))
+            else:
+                return ((adv.x>GAME_WIDTH*9.0/10) and (adv.y<state.get_goal_center(teamadv).y+((GAME_GOAL_HEIGHT/2)*(4.0/5))) \
+                            and (adv.y>state.get_goal_center(teamadv).y-((GAME_GOAL_HEIGHT/2)*(4.0/5))))
         else:
-            return ((adv.x>GAME_WIDTH*9.0/10) and (adv.y<state.get_goal_center(teamadv).y+((GAME_GOAL_HEIGHT/2)*(4.0/5))) \
-                        and (adv.y>state.get_goal_center(teamadv).y-((GAME_GOAL_HEIGHT/2)*(4.0/5))))
-    else:
-        return False
+            return False
                 
                 
                 
 #Retourne True si la balle est proche
-def BalleProche(state, player):
-    if (PLAYER_RADIUS+BALL_RADIUS)>=(state.ball.position.distance(player.position)):
-        return True
-    else:
-        return False
+    def BalleProche(self):
+        if (PLAYER_RADIUS+BALL_RADIUS)>=(state.ball.position.distance(player.position)):
+            return True
+        else:
+            return False
 
 #Donne l'équipe Adverse
-def teamAdverse(teamid):
-    adv=2
-    if (teamid==2):
-        adv=1
-    return adv
+    def teamAdverse(self):
+        adv=2
+        if (self.teamid==2):
+            adv=1
+        return adv
     
 
 #donne les coordonnes du joueur adverse si il est assez proche
-def joueurAdverseProche(state, teamid, player):
-        teamadv = teamAdverse(teamid)
+    def joueurAdverseProche(self):
+        teamadv = self.teamAdverse()
         coord = None
         moi = player.position
         if (teamadv==1):
@@ -61,76 +68,76 @@ def joueurAdverseProche(state, teamid, player):
         
         
 #indique si on a dépasse le joueur adverse proche        
-def joueurAdversaireDerriere(state, teamid, player, adv):
-    teamadv = teamAdverse(teamid)
-    moi = player.position
-    a = False
-    if (adv!=None):
-        if (teamadv==1):
-            if(adv.x > moi.x):
-                a = True
+    def joueurAdversaireDerriere(self, adv):
+        teamadv = self.teamAdverse()
+        moi = self.player.position
+        a = False
+        if (adv!=None):
+            if (teamadv==1):
+                if(adv.x > moi.x):
+                    a = True
+                else:
+                        a = False
             else:
-                a = False
-        else:
-            if(adv.x<moi.x):
-                a = True
-            else:
-                a = False
+                if(adv.x<moi.x):
+                    a = True
+                else:
+                    a = False
                     
-    return a
+        return a
     
 
 
 #renvoie le centre de la droite qui delimite surface de rep
-def centreSurface(state, teamid, player):
-    if (teamid==1):
-        return Vector2D(GAME_WIDTH*(1.0/5),GAME_HEIGHT*0.5)
-    else:
-        return Vector2D(GAME_WIDTH*(4.0/5),GAME_HEIGHT*(0.5))
+    def centreSurface(self):
+        if (self.teamid==1):
+            return Vector2D(GAME_WIDTH*(1.0/5),GAME_HEIGHT*0.5)
+        else:
+            return Vector2D(GAME_WIDTH*(4.0/5),GAME_HEIGHT*(0.5))
 
 
 # indique si mon joueur se trouve dans la surface de rep        
-def DansSurface(state, teamid, position):
-    a = Vector2D((GAME_WIDTH*(1.5/5)), (GAME_HEIGHT*(1.5/5)))
-    b = Vector2D((GAME_WIDTH*(1.5/5)), (GAME_HEIGHT*(3.5/5)))
-    c = Vector2D((GAME_WIDTH*(3.5/5)), (GAME_HEIGHT*(1.5/5)))
-    d = Vector2D((GAME_WIDTH*(3.5/5)), (GAME_HEIGHT*(3.5/5)))
+    def DansSurface(self, position):
+        a = Vector2D((GAME_WIDTH*(1.5/5)), (GAME_HEIGHT*(1.5/5)))
+        b = Vector2D((GAME_WIDTH*(1.5/5)), (GAME_HEIGHT*(3.5/5)))
+        c = Vector2D((GAME_WIDTH*(3.5/5)), (GAME_HEIGHT*(1.5/5)))
+        d = Vector2D((GAME_WIDTH*(3.5/5)), (GAME_HEIGHT*(3.5/5)))
     
-    if (teamid==1):
-        if(position.x<(GAME_WIDTH*(1.5/5)) and position.y>a.y and position.y<b.y) :
-            return True
+        if (self.teamid==1):
+            if(position.x<(GAME_WIDTH*(1.5/5)) and position.y>a.y and position.y<b.y) :
+                return True
+            else:
+                return False
         else:
-            return False
-    else:
-        if(position.x>(GAME_WIDTH*(3.5/5)) and position.y>c.y and position.y<d.y) :
-            return True
-        else:
-            return False
+            if(position.x>(GAME_WIDTH*(3.5/5)) and position.y>c.y and position.y<d.y) :
+                return True
+            else:
+                return False
 
 #retourne la distance entre le joueur adverse proche et moi        
-def distAdv(state, teamid, player):
-    acceleration = Vector2D(0,0)
-    moi = player.position
-    adv = joueurAdverseProche(state, teamid, player)
-    if (adv!=None):
-        return adv - moi
-    else:
-        return None
+    def distAdv(self):
+        acceleration = Vector2D(0,0)
+        moi = player.position
+        adv = joueurAdverseProche()
+        if (adv!=None):
+            return adv - moi
+        else:
+            return None
         
 
        
 
 # Retourne True si mon equipe a la balle        
-def quiABalle(state, teamid, player):
-    def distABalle(p):
-        return state.ball.position.distance(p.position)
-    teamadv = teamAdverse(teamid)
-    p1= min(state.team1.players, key=distABalle)
-    p2= min(state.team2.players, key=distABalle)    
-    if distABalle(p1)<distABalle(p2):
-        return teamid==1
-    else:
-        return teamid==2
+    def quiABalle(self):
+        def distABalle(p):
+            return state.ball.position.distance(p.position)
+        teamadv = self.teamAdverse()
+        p1= min(state.team1.players, key=distABalle)
+        p2= min(state.team2.players, key=distABalle)    
+        if distABalle(p1)<distABalle(p2):
+            return teamid==1
+        else:
+            return teamid==2
         
             
 
@@ -190,14 +197,15 @@ class Tir(SoccerStrategy):
         pass
     def compute_strategy(self,state,player,teamid):
         pos = Vector2D(0,0)
-        teamadv = teamAdverse(teamid)
-        adv = joueurAdverseProche(state, teamid, player)
+        outil = Outil(state, player, teamid)
+        teamadv = outil.teamAdverse()
+        adv = outil.joueurAdverseProche()
         print adv
         moi = player.position
-        goalhaut= state.get_goal_center(teamAdverse(teamid))+Vector2D(0,((GAME_GOAL_HEIGHT/2)*(3.8/5)))
-        goalbas= state.get_goal_center(teamAdverse(teamid))-Vector2D(0, ((GAME_GOAL_HEIGHT/2)*(3.8/5)))
-        danscages = Estdanscages(state, player, teamid)
-        if (BalleProche(state, player)):
+        goalhaut= state.get_goal_center(teamadv)+Vector2D(0,((GAME_GOAL_HEIGHT/2)*(3.8/5)))
+        goalbas= state.get_goal_center(teamadv)-Vector2D(0, ((GAME_GOAL_HEIGHT/2)*(3.8/5)))
+        danscages = outil.Estdanscages()
+        if (outil.BalleProche()):
                 if (danscages) and (adv!=None):
                     if (adv.y<=state.get_goal_center(teamadv).y):
                         shoot = goalhaut - player.position
@@ -252,8 +260,9 @@ class Degagement(SoccerStrategy):
         pass
     def compute_strategy(self,state,player,teamid):
         acceleration = Vector2D(0,0)
-        dist = distAdv(state, teamid, player)
-        adv = joueurAdverseProche(state, teamid, player)
+        outil = Outil(state, player, teamid)
+        dist = outil.distAdv()
+        adv = outil.joueurAdverseProche()
         moi = player.position
         if (PLAYER_RADIUS+BALL_RADIUS)>=(state.ball.position.distance(player.position)): 
             if (adv!=None):
@@ -328,13 +337,14 @@ class Intercepteur(SoccerStrategy):
     def finish_battle(self,won):
         pass
     def compute_strategy(self,state,player,teamid):
+        outil = Outil(state, player, teamid)
         if teamid == 1:
-            if state.ball.position.x> centreSurface(state, teamid, player).x:
+            if state.ball.position.x> outil.centreSurface().x:
                 return self.suivre.compute_strategy(state,player,teamid)
             else:
                 return self.defendre.compute_strategy(state,player,teamid)
         else:
-            if state.ball.position.x< centreSurface(state, teamid, player).x:
+            if state.ball.position.x< outil.centreSurface().x:
                 return self.suivre.compute_strategy(state,player,teamid)
             else:
                 return self.defendre.compute_strategy(state,player,teamid)
@@ -367,21 +377,23 @@ class DefenseurContreAttaque(SoccerStrategy):
     def finish_battle(self,won):
         pass
     def compute_strategy(self,state,player,teamid):
+        outil = Outil(state, player, teamid)
+        teamadv = outil.teamAdverse()
         shoot = Vector2D(0,0)
         d = state.ball.position - player.position
         if d.norm > 25 :
-            if (teamAdverse(teamid)==2):
+            if (teamadv==2):
                 pos = Vector2D((1.2/5)*GAME_WIDTH,state.ball.position.y)-player.position
             else:
                 pos = Vector2D((3.7/5)*GAME_WIDTH,state.ball.position.y)-player.position
         else:
             pos= state.ball.position-player.position
-            shoot= (state.get_goal_center(teamAdverse(teamid))-player.position)
+            shoot= (state.get_goal_center(teamadv)-player.position)
             
         
         
         if (PLAYER_RADIUS+BALL_RADIUS)>=(state.ball.position.distance(player.position)):
-            shoot= (state.get_goal_center(teamAdverse(teamid))-player.position)
+            shoot= (state.get_goal_center(teamadv)-player.position)
            
             
         return SoccerAction(pos,shoot)
@@ -402,21 +414,23 @@ class GoalContreAttaque(SoccerStrategy):
     def finish_battle(self,won):
         pass
     def compute_strategy(self,state,player,teamid):
+        outil = Outil(state, player, teamid)
+        teamadv = outil.teamAdverse()
         shoot = Vector2D(0,0)
         d = state.ball.position - player.position
         if d.norm > 30 :
-            if (teamAdverse(teamid)==2):
+            if (teamadv==2):
                 pos = Vector2D((0.2/5)*GAME_WIDTH,state.ball.position.y)-player.position
             else:
                 pos = Vector2D((4.8/5)*GAME_WIDTH,state.ball.position.y)-player.position
         else:
             pos= state.ball.position-player.position
-            shoot= (state.get_goal_center(teamAdverse(teamid))-player.position)
+            shoot= (state.get_goal_center(teamadv)-player.position)
             
         
         
         if (PLAYER_RADIUS+BALL_RADIUS)>=(state.ball.position.distance(player.position)):
-            shoot= (state.get_goal_center(teamAdverse(teamid))-player.position)
+            shoot= (state.get_goal_center(teamadv)-player.position)
            
             
         return SoccerAction(pos,shoot)
@@ -436,7 +450,8 @@ class Goal1(SoccerStrategy):
     def finish_battle(self,won):
         pass
     def compute_strategy(self,state,player,teamid):
-        bds = DansSurface(state, teamid, state.ball.position) # bds = balledanssurface #
+        outil = Outil(state, player, teamid)
+        bds = outil.DansSurface(state.ball.position) # bds = balledanssurface #
         if bds:
             if player.position.y > (1.3)*GAME_WIDTH :
                 self.dest.destination = Vector2D (state.get_goal_center(teamid).x, state.ball.position.y) 
@@ -462,10 +477,11 @@ class Goal2(SoccerStrategy):
     def finish_battle(self,won):
         pass
     def compute_strategy(self,state,player,teamid):
+        outil = Outil(state, player, teamid)
         shoot = Vector2D(0,0)
         d = state.get_goal_center(teamid) - state.ball.position
         
-        if (DansSurface(state, teamid, player.position)==False):
+        if (outil.DansSurface(player.position)==False):
         
             acceleration = state.get_goal_center(teamid) - player.position
             
@@ -479,7 +495,7 @@ class Goal2(SoccerStrategy):
                  acceleration = state.ball.position-player.position
                  
                        
-        if BalleProche(state, player):
+        if outil.BalleProche():
             p = state.get_goal_center(teamAdverse(teamid)) - state.ball.position            
             shoot = Vector2D.create_polar((p.angle)+3.14/8, p.norm)
             acceleration = Vector2D(0,0)
@@ -535,31 +551,33 @@ class Dribbleur(SoccerStrategy):
     def finish_battle(self,won):
         pass
     def compute_strategy(self,state,player,teamid):
+        outil = Outil(state, player, teamid)
+        teamadv = outil.teamAdverse()
         moi = player.position
-        adv = joueurAdverseProche(state, teamid, player)
+        adv = outil.joueurAdverseProche()
         shoot = Vector2D(0,0)
         acceleration = state.ball.position - player.position
   
         if (adv!=None):
             tir= adv - moi
-            a = state.get_goal_center(teamAdverse(teamid))-player.position
-            if (adv.y<moi.y) and BalleProche(state, player):
+            a = state.get_goal_center(teamadv)-player.position
+            if (adv.y<moi.y) and outil.BalleProche():
                 shoot = Vector2D.create_polar((tir.angle)+0.75, 1.75)
                 acceleration = state.ball.position - player.position
-                if (joueurAdversaireDerriere(state, teamid, player, adv)==True) and BalleProche(state, player):
-                    shoot= (state.get_goal_center(teamAdverse(teamid))-player.position)
-                elif(BalleProche(state,player)):
+                if (outil.joueurAdversaireDerriere()==True) and outil.BalleProche():
+                    shoot= (state.get_goal_center(teamadv)-player.position)
+                elif(outil.BalleProche()):
                     shoot = Vector2D.create_polar((tir.angle)+0.75, 1.75)
                     
-            elif(BalleProche(state,player)):
+            elif(outil.BalleProche()):
                 shoot = Vector2D.create_polar((tir.angle)-0.75, 1.75)
                 acceleration = state.ball.position - player.position
-                if (joueurAdversaireDerriere(state, teamid, player, adv)==True) and BalleProche(state,player):
-                    shoot= (state.get_goal_center(teamAdverse(teamid))-player.position)
-                elif(BalleProche(state,player)):
+                if (outil.joueurAdversaireDerriere()==True) and outil.BalleProche():
+                    shoot= (state.get_goal_center(teamadv)-player.position)
+                elif(outil.BalleProche()):
                     shoot = Vector2D.create_polar((tir.angle)+0.75, 1.75)
-        elif(BalleProche(state,player)):
-            shoot = Vector2D.create_polar((state.get_goal_center(teamAdverse(teamid))-player.position).angle, 1.75)
+        elif(outil.BalleProche()):
+            shoot = Vector2D.create_polar((state.get_goal_center(teamadv)-player.position).angle, 1.75)
             acceleration = state.ball.position - player.position
             
         return SoccerAction(acceleration,shoot)
