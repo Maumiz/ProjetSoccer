@@ -13,10 +13,10 @@ from classes import *
 team1=SoccerTeam("team1")
 team2=SoccerTeam("team2")
 
-team1.add_player(SoccerPlayer("t1j1",Goal2()))
-team2.add_player(SoccerPlayer("t2j1",Attaquant()))
+team1.add_player(SoccerPlayer("t1j1",Attaquant()))
+team2.add_player(SoccerPlayer("t2j1",Intercepteur()))
 team1.add_player(SoccerPlayer("t1j2",RandomStrategy()))
-team2.add_player(SoccerPlayer("t2j2",Intercepteur()))
+team2.add_player(SoccerPlayer("t2j2",RandomStrategy()))
 
 
 battle=SoccerBattle(team1,team2)
