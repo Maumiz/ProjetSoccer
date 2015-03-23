@@ -8,11 +8,21 @@ import numpy as np
 import pickle
 import os
 import classes
+from soccersimulator import TreeIA
 
 # list_fun_features=[distance_ball,distance_mon_but,distance_autre_but,distance_ball_mon_but,distance_ball_autre_but]
 
 def gen_feature_simple(state,teamid,playerid):
     player=state.get_player(teamid,playerid)
-    l=[classes.estDansCages(state, player, teamid), classes.balleProche(state, player), classes.teamAdverse(teamid), classes.cagesAdverse(teamid), classes.joueurAdverseProche(state, teamid, player), classes.joueurAdversaireDerriere(state, teamid, player, adv), classes.centreSurface(state, teamid, player), classes.dansSurface(state, teamid, position), classes.dansTerrain(state, teamid, position), classes.distAdv(state, teamid, player), classes.quiABalle(state, teamid, player)]
+    l=[classes.estDansCages(state, player, teamid), classes.balleProche(state, player), classes.teamAdverse(teamid)]
     return np.array(l)
     
+if __name__=="__main__":
+    treeia=TreeIA(gen_feature_simple)
+    treeia.learn(fn="Defenseur1")
+    treeia.save("Defenseur1.pkl")
+    treeia.to_dot("Defenseur1.dot")
+
+   
+# Donner nom strats pr ia
+# tree a arbre qui stocke les features et strats
