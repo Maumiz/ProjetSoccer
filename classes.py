@@ -14,13 +14,27 @@ from soccersimulator import PygletObserver,ConsoleListener,LogListener
 ###################           ###############
 #############################################
 
+#retourne la distance entre le ballon et le joueur adverse
+def distAdvBall(state, teamid, player):
+    balle = state.ball.position
+    adv = joueurAdverseProche(state, teamid, player)
+    if (adv!=None):
+        return balle.distance(adv)
+    else:
+        return None
+
+#retourne ma distance au ballon
+def distballon(state, player):
+    return state.ball.position.distance(player.position)
+
 #retourne les coordonnées de la defense
 def defense(teamid):
     if (teamid==1):
         return Vector2D(GAME_WIDTH*0.2, GAME_HEIGHT*0.5)
     else:
         return Vector2D(GAME_WIDTH*0.8, GAME_HEIGHT*0.5)
-    
+        
+# retourne les coordonnées de mon goal    
 def goal(teamid):
     if (teamid==1):
         return Vector2D(GAME_WIDTH*0, GAME_HEIGHT*0.5)
@@ -28,7 +42,7 @@ def goal(teamid):
         return Vector2D(GAME_WIDTH, GAME_HEIGHT*0.5)
 
 #retourne true si mon adversaire est dans ses cages
-def estDansCages(state, player, teamid):
+def estDansCages(state, teamid, player):
     adv = joueurAdverseProche(state, teamid, player)
     teamadv = teamAdverse(teamid)
     if(adv!= None):
@@ -77,7 +91,7 @@ def joueurAdverseProche(state, teamid, player):
         
         
 #indique si on a dépasse le joueur adverse proche        
-def joueurAdversaireDerriere(state, teamid, player, adv):
+def joueurAdverseDerriere(state, teamid, player, adv):
     teamadv = teamAdverse(teamid)
     moi = player.position
     a = False
@@ -105,32 +119,33 @@ def centreSurface(state, teamid, player):
         return Vector2D(GAME_WIDTH*(4.0/5),GAME_HEIGHT*(0.5))
 
 
-# indique si mon joueur ou si la balle se trouve dans la surface de rep        
-def dansSurface(state, teamid, position):
+# Retourne True si la balle se trouve dans la surface de rep        
+def dansSurface(state, teamid):
     a = Vector2D((GAME_WIDTH*(1.5/5)), (GAME_HEIGHT*(1.5/5)))
     b = Vector2D((GAME_WIDTH*(1.5/5)), (GAME_HEIGHT*(3.5/5)))
     c = Vector2D((GAME_WIDTH*(3.5/5)), (GAME_HEIGHT*(1.5/5)))
     d = Vector2D((GAME_WIDTH*(3.5/5)), (GAME_HEIGHT*(3.5/5)))
     
     if (teamid==1):
-        if(position.x<(GAME_WIDTH*(1.5/5)) and position.y>a.y and position.y<b.y) :
+        if(state.ball.position.x<(GAME_WIDTH*(1.5/5)) and state.ball.position.y>a.y and state.ball.position.y<b.y) :
             return True
         else:
             return False
     else:
-        if(position.x>(GAME_WIDTH*(3.5/5)) and position.y>c.y and position.y<d.y) :
+        if(state.ball.position.x>(GAME_WIDTH*(3.5/5)) and state.ball.position.y>c.y and state.ball.position.y<d.y) :
             return True
         else:
             return False
-            
-def dansTerrain(state, teamid, position):  
+
+# retourne true si la balle est dans ma moitié de térrain           
+def dansTerrain(state, teamid):  
     if (teamid==1):
-        if(position.x<GAME_WIDTH*0.5):
+        if(state.ball.position.x<GAME_WIDTH*0.5):
             return True
         else:
             return False
     else:
-        if(position.x>GAME_WIDTH*0.5):
+        if(state.ball.position.x>GAME_WIDTH*0.5):
             return True
         else:
             return False
@@ -148,7 +163,7 @@ def distAdv(state, teamid, player):
        
 
 # Retourne True si mon equipe a la balle        
-def quiABalle(state, teamid, player):
+def quiBalle(state, teamid, player):
     def distABalle(p):
         return state.ball.position.distance(p.position)
     p1= min(state.team1.players, key=distABalle)
@@ -233,7 +248,8 @@ class AllerVersBalle(SoccerStrategy):
     def compute_strategy(self,state,player,teamid):
         self.dest.destination = state.ball.position
         return self.dest.compute_strategy(state,player,teamid)
-        
+
+# Le joueur retourne en défense        
 class AllerDef(SoccerStrategy):
     def __init__(self):
         self.dest = AllerVersPoint(Vector2D())
@@ -270,7 +286,8 @@ class Degagement(SoccerStrategy):
         else:
             shoot = Vector2D(0,0)
         return SoccerAction(acceleration, shoot)
-        
+
+# Degagement utilisé par la classe intercepteur        
 class Degagement1(SoccerStrategy):
     def __init__(self):
         self.action=ComposeStrategy(AllerVersBalle(), Degagement())
@@ -296,7 +313,8 @@ class aligne(SoccerStrategy):
         return SoccerAction(acceleration, shoot)
     def aligne(self):
         return Defenseur()
-        
+
+# un goal qui s'aligne par apport à la balle        
 class golAligne(SoccerStrategy):
     def __init__(self):
         pass
@@ -305,7 +323,7 @@ class golAligne(SoccerStrategy):
     def finish_battle(self,won):
         pass
     def compute_strategy(self,state,player,teamid):
-        if estDansCages(state, player, teamid):
+        if estDansCages(state, teamid, player):
             acceleration = Vector2D(state.get_goal_center(teamid).x, state.ball.position.y)
             shoot = Vector2D(0,0)
         return SoccerAction(acceleration,shoot)
@@ -328,7 +346,7 @@ class Defenseur(SoccerStrategy):
     def create_strategy(self):
         return Defenseur()
    
-class Defenseur1(SoccerStrategy):
+'''class Defenseur1(SoccerStrategy):
     def __init__(self, dest=Vector2D()):
         self.dest = AllerVersPoint(Vector2D())
         self.degage = Degagement1()
@@ -337,13 +355,12 @@ class Defenseur1(SoccerStrategy):
     def finish_battle(self,won):
         pass
     def compute_strategy(self,state,player,teamid):
-        if(dansTerrain(state, teamid, state.ball.position) and quiABalle(state, teamid, player)==False):
+        if(dansTerrain(state, teamid) and quiABalle(state, teamid)==False):
             return self.degage.compute_strategy(state,player,teamid)
             print degage
         else:
             self.dest.destination = defense(teamid)
-            return self.dest.compute_strategy(state,player,teamid)
-          
+            return self.dest.compute_strategy(state,player,teamid)'''
             
 #Suit le joueur qui à la balle en se placant entre les cages et le joueur adverse
 class Suiveur(SoccerStrategy):
@@ -360,7 +377,7 @@ class Suiveur(SoccerStrategy):
     def create_strategy(self):
         return Suiveur()
         
-#Suit le joueur adverse grace à strategie suieur puis lorsque le joueur rentre dans la surface de rep, il degage la balle
+#Suit le joueur adverse grace à strategie suiveur puis lorsque le joueur rentre dans la surface de rep, il degage la balle
 class Intercepteur(SoccerStrategy):
     def __init__(self):
         self.suivre = Suiveur()
@@ -464,7 +481,8 @@ class GoalContreAttaque(SoccerStrategy):
         return GoalContreAttaque()
     def create_strategy(self):
         return GoalContreAttaque()
-      
+
+# Un goal qui dégage la balle et s'aligne par rapport au ballon      
 class Goal1(SoccerStrategy):
     def __init__(self, dest = Vector2D()):
         self.dest = AllerVersPoint(Vector2D())
@@ -475,7 +493,7 @@ class Goal1(SoccerStrategy):
     def finish_battle(self,won):
         pass
     def compute_strategy(self,state,player,teamid):
-        bds = dansSurface(state, teamid, state.ball.position) # bds = balledanssurface #
+        bds = dansSurface(state, teamid) # bds = balledanssurface #
         if bds:
             if player.position.y > (1.3)*GAME_WIDTH :
                 self.dest.destination = Vector2D (state.get_goal_center(teamid).x, state.ball.position.y) 
@@ -503,7 +521,7 @@ class Goal2(SoccerStrategy):
         shoot = Vector2D(0,0)
         d = state.get_goal_center(teamid) - state.ball.position
         
-        if (dansSurface(state, teamid, player.position)==False):
+        if (dansSurface(state, teamid)==False):
         
             acceleration = state.get_goal_center(teamid) - player.position
             
@@ -559,8 +577,7 @@ class Defenseur(SoccerStrategy):
 '''        
       
 # Un dribbleur qui contourne l'adversaire et qui pousse la balle par des petits coups. Une fois qu'il a contourné l'adversaire, il fonce vers les buts opposés.
-# Probleme parfois lors de croisement de certains adversaires, il les contourne alors qu'il ne devrait pas car ils sont loins, peut etre probleme avec les 
-# coordonnes y?
+
 class Dribbleur(SoccerStrategy):
     def __init__(self):
         self.name="Dribbleur"
@@ -581,7 +598,7 @@ class Dribbleur(SoccerStrategy):
             if (adv.y<moi.y) and balleProche(state, player):
                 shoot = Vector2D.create_polar((tir.angle)+0.75, 1.75)
                 acceleration = state.ball.position - player.position
-                if (joueurAdversaireDerriere(state, teamid, player, adv)==True) and balleProche(state, player):
+                if (joueurAdverseDerriere(state, teamid, player, adv)==True) and balleProche(state, player):
                     shoot= a
                 elif(balleProche(state,player)):
                     shoot = Vector2D.create_polar((tir.angle)+0.75, 1.75)
@@ -589,7 +606,7 @@ class Dribbleur(SoccerStrategy):
             elif (balleProche(state,player)):
                 shoot = Vector2D.create_polar((tir.angle)-0.75, 1.75)
                 acceleration = state.ball.position - player.position
-                if (joueurAdversaireDerriere(state, teamid, player, adv)==True) and balleProche(state,player):
+                if (joueurAdverseDerriere(state, teamid, player, adv)==True) and balleProche(state,player):
                     shoot= a
                 elif(balleProche(state,player)):
                     shoot = Vector2D.create_polar((tir.angle)+0.75, 1.75)
@@ -633,7 +650,7 @@ class Tireur(SoccerStrategy):
             
         return SoccerAction(pos, shoot)
         
-
+# Attaquant qui combine mon dribbleur et mon tireur --> très efficace
 class Attaquant(SoccerStrategy):
     def __init__(self):
         self.dribble=Dribbleur()
@@ -654,30 +671,3 @@ class Attaquant(SoccerStrategy):
                 return self.tir.compute_strategy(state, player, teamid)
             else:
                 return self.dribble.compute_strategy(state,player,teamid)
-    
-
-'''
-class DefenseurProf(SoccerStrategy):
-    def __init__(self):
-        self.name="Defenseur"
-        self.list=[Goal(),AllerVersPoint(),]
-    def start_battle(self,state):
-        pass
-    def finish_battle(self,won):
-        pass
-    def selector(self,state,player,teamid):
-        if (condition pour goal : ball proche des butsd):
-            return 0
-        if (condition ...) :
-            self.list[1].direction = ....
-            return 1
-        return -1
-    
-    def compute_strategy(self,state,player,teamid):
-        
-        idx = self.selector(state,player,teamid)
-        return self.list[idx].compute_strategy(state,player,teamid)
-     
-'''
-
-# Creer  

@@ -5,9 +5,17 @@ Created on Mon Mar 16 19:11:22 2015
 @author: 3301031
 """
 
+""" Stratégies simples dérivées de mes stratégies du fichier classes.py, afin de pouvoir faire le joueur intelligent sans des strats compliquées"""
+
 from soccersimulator import Vector2D, SoccerBattle, SoccerPlayer, SoccerTeam, SoccerStrategy, SoccerAction, PLAYER_RADIUS, BALL_RADIUS, GAME_HEIGHT, GAME_WIDTH, GAME_GOAL_HEIGHT
 from soccersimulator import PygletObserver,ConsoleListener,LogListener
 import math
+
+
+##################################
+####### FONCTIONS UTILES##########
+##################################
+
 
 #retourne les coordonnées de la defense
 def defense(teamid):
@@ -15,7 +23,8 @@ def defense(teamid):
         return Vector2D(GAME_WIDTH*0.2, GAME_HEIGHT*0.5)
     else:
         return Vector2D(GAME_WIDTH*0.8, GAME_HEIGHT*0.5)
-    
+
+#retourne les coordonnées de meon goal    
 def goal(teamid):
     if (teamid==1):
         return Vector2D(GAME_WIDTH*0, GAME_HEIGHT*0.5)
@@ -78,7 +87,25 @@ def joueurAdverseProche(state, teamid, player):
 ###DEPLACEMENTS###
 ##################
 
+# Joueur Random qui se déplace et shoote aléatoirement
+class RandomStrategy(SoccerStrategy):
+    def __init__(self):
+        self.name="random"
+    def start_battle(self,state):
+        pass
+    def finish_battle(self,won):
+        pass
+    def compute_strategy(self,state,player,teamid):
+        pos = Vector2D.create_random(-1, 1)
+        shoot = Vector2D.create_random(-1, 1)
+        action = SoccerAction(pos,shoot)
+        return action
+    def copy(self):
+        return RandomStrategy()
+    def create_strategy(self):
+        return RandomStrategy()
 
+# Le joueur arrete de bouger et de tirer
 class Immobile(SoccerStrategy):
     def __init__(self):
         self.name = "Immobile"
@@ -222,7 +249,8 @@ class AllerVersBalle(SoccerStrategy):
     def compute_strategy(self,state,player,teamid):
         self.dest.destination = state.ball.position
         return self.dest.compute_strategy(state,player,teamid)
-        
+
+# Le joueur retourne aux cages        
 class AllerVersCages(SoccerStrategy):
     def __init__(self):
         self.dest = AllerVersPoint(Vector2D())
@@ -238,13 +266,57 @@ class AllerVersCages(SoccerStrategy):
             self.dest.destination = state.get_goal_center(teamid)-Vector2D(10, 0)
         return self.dest.compute_strategy(state,player,teamid)
         
+# Retourne en défense
+class AllerDef(SoccerStrategy):
+    def __init__(self):
+        self.dest = AllerVersPoint(Vector2D())
+        self.name = "allerdef"
+    def start_battle(self,state):
+        pass
+    def finish_battle(self,won):
+        pass
+    def compute_strategy(self,state,player,teamid):
+        self.dest.destination = defense(teamid)
+        return self.dest.compute_strategy(state,player,teamid)
+        
+# Le joueur s'aligne par rapport aux coordonées y du ballon        
+class aligne(SoccerStrategy):
+    def __init__(self):
+        self.aligne = "aligne"
+    def start_battle(self,state):
+        pass
+    def finish_battle(self,won):
+        pass
+    def compute_strategy(self,state,player,teamid):
+        acceleration = Vector2D(player.position.x, state.ball.position.y)
+        shoot = Vector2D(0,0)
+        return SoccerAction(acceleration, shoot)
+    def aligne(self):
+        return Defenseur()
+        
+# Le joueur se place entre la distance de mes buts et de la balle        
+class Suiveur(SoccerStrategy):
+    def __init__(self, dest=Vector2D()):
+        self.dest = AllerVersPoint(Vector2D())
+        self.name = "suiveur"
+    def start_battle(self,state):
+        pass
+    def finish_battle(self,won):
+        pass
+    def compute_strategy(self,state,player,teamid):
+        self.dest.destination = state.ball.position + state.get_goal_center(teamid)
+        self.dest.destination.product(0.5)
+        return self.dest.compute_strategy(state,player,teamid)
+    def create_strategy(self):
+        return Suiveur()
+        
 
 ###################
 #######TIRS########
 ###################
         
         
-#degage la balle dans l'angle opposé à l'adversaire
+#degage la balle dans un angle orienté vers le haut
 class TirHaut(SoccerStrategy):
     def __init__(self):
         pass
@@ -262,7 +334,8 @@ class TirHaut(SoccerStrategy):
         else:
             shoot = Vector2D(0,0)
         return SoccerAction(acceleration, shoot)
-        
+
+# dégage la balle dans un angle orienté vers le bas     
 class TirBas(SoccerStrategy):
     def __init__(self):
         pass
@@ -280,7 +353,8 @@ class TirBas(SoccerStrategy):
         else:
             shoot = Vector2D(0,0)
         return SoccerAction(acceleration, shoot)
-        
+
+# dégage la balle dans le sens opposé        
 class TirOppose(SoccerStrategy):
     def __init__(self):
         pass
@@ -298,7 +372,8 @@ class TirOppose(SoccerStrategy):
         else:
             shoot = Vector2D(0,0)
         return SoccerAction(acceleration, shoot)
-    
+
+# Tire vers les cages adverses    
 class TirCages(SoccerStrategy):
     def __init__(self):
         pass
@@ -320,24 +395,8 @@ class TirCages(SoccerStrategy):
 #################################
 ##### DEPLACEMENTS ET TIRS ######
 #################################
-       
-class RandomStrategy(SoccerStrategy):
-    def __init__(self):
-        self.name="random"
-    def start_battle(self,state):
-        pass
-    def finish_battle(self,won):
-        pass
-    def compute_strategy(self,state,player,teamid):
-        pos = Vector2D.create_random(-1, 1)
-        shoot = Vector2D.create_random(-1, 1)
-        action = SoccerAction(pos,shoot)
-        return action
-    def copy(self):
-        return RandomStrategy()
-    def create_strategy(self):
-        return RandomStrategy()
 
+# Un joueur qui fonce vers balle et qui tire vers cages adverses
 class JoueurFonceur(SoccerStrategy):
     def __init__(self):
         self.name="fonceur"
@@ -351,7 +410,8 @@ class JoueurFonceur(SoccerStrategy):
         if (balleProche):    
             shoot= (state.get_goal_center(teamAdverse(teamid))-player.position)
         return SoccerAction(pos,shoot)
-        
+ 
+# Va vers la balle et tire vers le bas       
 class AllerTirerBas(SoccerStrategy):
     def __init__(self):
         self.name="allertirerbas"
@@ -367,6 +427,7 @@ class AllerTirerBas(SoccerStrategy):
         else:
             return self.bouger.compute_strategy(state, player, teamid)
             
+# Va vers la balle et tire vers les cages adverses           
 class AllerTirerCages(SoccerStrategy):
     def __init__(self):
         self.name="allertirercages"
@@ -381,7 +442,8 @@ class AllerTirerCages(SoccerStrategy):
             return self.tir.compute_strategy(state, player, teamid)
         else:
             return self.bouger.compute_strategy(state, player, teamid)
-            
+
+# Va vers la balle et tire vers le haut            
 class AllerTirerHaut(SoccerStrategy):
     def __init__(self):
         self.name="allertirerhaut"
@@ -396,65 +458,8 @@ class AllerTirerHaut(SoccerStrategy):
             return self.tir.compute_strategy(state, player, teamid)
         else:
             return self.bouger.compute_strategy(state, player, teamid)
-    
-        
-    
 
-class AllerDef(SoccerStrategy):
-    def __init__(self):
-        self.dest = AllerVersPoint(Vector2D())
-        self.name = "allerdef"
-    def start_battle(self,state):
-        pass
-    def finish_battle(self,won):
-        pass
-    def compute_strategy(self,state,player,teamid):
-        self.dest.destination = defense(teamid)
-        return self.dest.compute_strategy(state,player,teamid)
-        
-        
-class aligne(SoccerStrategy):
-    def __init__(self):
-        self.aligne = "aligne"
-    def start_battle(self,state):
-        pass
-    def finish_battle(self,won):
-        pass
-    def compute_strategy(self,state,player,teamid):
-        acceleration = Vector2D(player.position.x, state.ball.position.y)
-        shoot = Vector2D(0,0)
-        return SoccerAction(acceleration, shoot)
-    def aligne(self):
-        return Defenseur()
-        
-        
-class Suiveur(SoccerStrategy):
-    def __init__(self, dest=Vector2D()):
-        self.dest = AllerVersPoint(Vector2D())
-        self.name = "suiveur"
-    def start_battle(self,state):
-        pass
-    def finish_battle(self,won):
-        pass
-    def compute_strategy(self,state,player,teamid):
-        self.dest.destination = state.ball.position + state.get_goal_center(teamid)
-        self.dest.destination.product(0.5)
-        return self.dest.compute_strategy(state,player,teamid)
-    def create_strategy(self):
-        return Suiveur()
-        
-class Allergoal(SoccerStrategy):
-    def __init__(self):
-        self.dest = AllerVersPoint(Vector2D())
-        self.name = "allerdef"
-    def start_battle(self,state):
-        pass
-    def finish_battle(self,won):
-        pass
-    def compute_strategy(self,state,player,teamid):
-        self.dest.destination = goal(teamid)
-        return self.dest.compute_strategy(state,player,teamid)
-        
+# stratégie de tir pareille que dans celle de classes.py         
 class Tireur(SoccerStrategy):
     def __init__(self):
         self.name = "tireur"

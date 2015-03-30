@@ -8,13 +8,15 @@ Created on Mon Feb  9 11:34:52 2015
 from soccersimulator import pyglet
 from soccersimulator import PygletObserver
 from soccersimulator import SoccerBattle, SoccerTeam, SoccerPlayer
+from soccersimulator import *
 from classes import *
+from apprentissage import *
 
 team1=SoccerTeam("team1")
 team2=SoccerTeam("team2")
 
-team1.add_player(SoccerPlayer("t1j1",Attaquant()))
-team2.add_player(SoccerPlayer("t2j1",Intercepteur()))
+team1.add_player(SoccerPlayer("t1j1",TreeST()))
+team2.add_player(SoccerPlayer("t2j1",Goal1()))
 team1.add_player(SoccerPlayer("t1j2",RandomStrategy()))
 team2.add_player(SoccerPlayer("t2j2",RandomStrategy()))
 
