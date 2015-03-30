@@ -1,7 +1,0 @@
-digraph Tree {
-0 [label="X[1] <= 0.5000\nerror = 0.80002\nsamples = 315\nvalue = [  4.   1.   2.   4.  76.  40.  71.  42.  75.]", shape="box"] ;
-1 [label="error = 0.8000\nsamples = 309\nvalue = [  4.   1.   2.   4.  76.  39.  71.  41.  71.]", shape="box"] ;
-0 -> 1 ;
-2 [label="error = 0.5000\nsamples = 6\nvalue = [ 0.  0.  0.  0.  0.  1.  0.  1.  4.]", shape="box"] ;
-0 -> 2 ;
-}
