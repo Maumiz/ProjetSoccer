@@ -78,7 +78,7 @@ def cagesAdverse(teamid):
 #donne les coordonnes du joueur adverse si il est assez proche
 def joueurAdverseProche(state, teamid, player):
         teamadv = teamAdverse(teamid)
-        coord = None
+        coord = Vector2D(-1, -1)
         moi = player.position
         if (teamadv==1):
             list_joueurs = state.team1.players
@@ -155,9 +155,9 @@ def distAdv(state, teamid, player):
     moi = player.position
     adv = joueurAdverseProche(state, teamid, player)
     if (adv!=None):
-        return adv - moi
+        return (adv - moi).norm
     else:
-        return None
+        return -1
         
 
        
@@ -184,7 +184,7 @@ def quiBalle(state, teamid, player):
 #Le joueur se déplace aléatoirement et ne tire pas
 class RandomStrategy(SoccerStrategy):
     def __init__(self):
-        self.name="Random"
+        self.name="random"
     def start_battle(self,state):
         pass
     def finish_battle(self,won):
@@ -203,7 +203,7 @@ class RandomStrategy(SoccerStrategy):
 #Joueur qui fonce vers cages adverses avec la balle
 class JoueurFonceur(SoccerStrategy):
     def __init__(self):
-        self.name="Fonceur"
+        self.name="fonceur"
     def start_battle(self,state):
         pass
     def finish_battle(self,won):
