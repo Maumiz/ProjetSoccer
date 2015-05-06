@@ -671,3 +671,15 @@ class Attaquant(SoccerStrategy):
                 return self.tir.compute_strategy(state, player, teamid)
             else:
                 return self.dribble.compute_strategy(state,player,teamid)
+                
+
+class DefenseurTmeSolo(SoccerStrategy):
+    def __init__(self):
+        self.suivre = Suiveur()
+        self.defendre = AllerDef()
+    def compute_strategy(self,state,player,teamid):
+        if (quiBalle(state, teamid, player) == False):
+            return self.suivre.compute_strategy(state, player, teamid)
+        else:
+            return self.defendre.compute_strategy(state, player, teamid)
+            
