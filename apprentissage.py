@@ -7,7 +7,7 @@ Created on Mon Mar 16 11:23:24 2015
 import numpy as np
 import pickle
 import os
-import classes
+import stratsimples
 from soccersimulator import TreeIA
 from soccersimulator import Vector2D, SoccerBattle, SoccerPlayer, SoccerTeam, SoccerStrategy, SoccerAction, PLAYER_RADIUS, BALL_RADIUS, GAME_HEIGHT, GAME_WIDTH, GAME_GOAL_HEIGHT
 
@@ -15,16 +15,16 @@ from soccersimulator import Vector2D, SoccerBattle, SoccerPlayer, SoccerTeam, So
 # création du générateur de features
 def gen_feature_simple(state,teamid,playerid):
     player=state.get_player(teamid,playerid)
-    adv = classes.joueurAdverseProche(state,teamid,player)
-    
-    l=[int(classes.quiBalle(state,teamid,player)), classes.distAdv(state,teamid,player), int(classes.dansTerrain(state,teamid)),\
-    int(classes.dansSurface(state,teamid)), classes.centreSurface(state,teamid,player), int(classes.JoueurAdverseDerriere(state,teamid,player,adv)),\
-    classes.joueurAdverseProche(state,teamid,player), int(classes.balleProche(state,player)), int(classes.estDansCages(state,teamid,player)),\
-    classes.distBallon(state,player), classes.distAdvBall(state,teamid,player), int(classes.estDansCages(state, teamid, player)), int(classes.balleProche(state, player))]
-    # fonctions nécessaires pour créer l'arbre 
-    
+    adv = stratsimples.joueurAdverseProche(state,teamid,player)
+    l = [
+    stratsimples.distAdv(state,teamid,player), int(stratsimples.dansTerrain(state,teamid)),\
+    int(stratsimples.dansSurface(state,teamid)),\
+    stratsimples.distballon(state, player),stratsimples.distAdvBall(state,teamid,player),\
+    int(stratsimples.balleProche(state, player)), stratsimples.distSurface(state, teamid, player),
+    ]
     return np.array(l)
     
+# fonctions nécessaires pour créer l'arbre 
     
 def app():
     treeia=TreeIA(gen_feature_simple)
@@ -32,5 +32,9 @@ def app():
     treeia.save("Defenseur1.pkl")
     treeia.to_dot("Defenseur1.dot")
 
-#app()
+if __name__=="__main__":
+    app()
+
 # dot -Tpdf nom -o nom.pdf : commande nécessaire pour génerer le pdf d'un arbre
+
+# int(stratsimples.quiBalle(state,teamid,player)), int(stratsimples.estDansCages(state,teamid,player))

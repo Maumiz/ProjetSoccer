@@ -173,6 +173,25 @@ def quiBalle(state, teamid, player):
     else:
         return teamid==2
         
+#########
+## TME SOLO #####
+#########
+
+def zonesDanger(state):
+    coord = Vector2D (-1, -1)
+    for p in state.danger_zones:
+        coord = p
+        
+    return p
+
+    
+def dansGlace(state):
+    zone = zonesDanger(state)
+    return (zone.type == "ice")
+    
+def dansBoue(state):
+    zone = zonesDanger(state)
+    return (zone.type == "boue")
             
 
     
@@ -219,6 +238,21 @@ class JoueurFonceur(SoccerStrategy):
         return JoueurFonceur()
     def create_strategy(self):
         return JoueurFonceur()
+        
+class JoueurFonceur2(SoccerStrategy):
+    def __init__(self):
+        self.name="fonceur"
+    def start_battle(self,state):
+        pass
+    def finish_battle(self,won):
+        pass
+    def compute_strategy(self,state,player,teamid):
+        pos = state.ball.position-player.position
+        shoot = Vector2D(0,0)
+        if (balleProche):    
+            shoot= Vector2D((GAME_WIDTH-player.position.x), GAME_WIDTH - player.position.y)
+        
+        return SoccerAction(pos,shoot)
 
         
 # Le joueur va vers un point précis du terrain passé en paramètre        
@@ -672,6 +706,12 @@ class Attaquant(SoccerStrategy):
             else:
                 return self.dribble.compute_strategy(state,player,teamid)
                 
+#####################
+#### TME SOLO ##########
+#######################
+
+
+
 
 class DefenseurTmeSolo(SoccerStrategy):
     def __init__(self):
@@ -682,4 +722,101 @@ class DefenseurTmeSolo(SoccerStrategy):
             return self.suivre.compute_strategy(state, player, teamid)
         else:
             return self.defendre.compute_strategy(state, player, teamid)
+            
+class DefenseurDegage(SoccerStrategy):
+    def __init__(self):
+        self.defendre = DefenseurTmeSolo()
+    def compute_strategy(self,state,player,teamid):
+        moi = player.position
+        balle = state.ball.position
+        cagesadv = state.get_goal_center(teamAdverse(teamid))
+        zone = zonesDanger(state)
+        shoot = zone.bottom_left - state.ball.position
+        deplacement = balle - moi
+        
+        if ((balle.distance(moi)<GAME_HEIGHT*0.2) or (dansSurface(state, teamid))):
+            return SoccerAction(deplacement, shoot)
+            
+        else:
+            return self.defendre.compute_strategy(state, player, teamid)
+            
+
+class Defenseur(SoccerStrategy):
+    def __init__(self):
+        self.defendre = DefenseurDegage()
+        self.aller = AllerDef()
+    def compute_strategy(self,state,player,teamid):
+        balle = state.ball.position
+        moi = player.position
+        deplacement = moi - balle
+        
+        if (balle.x < zone.bottom_left or balle.y < zone.bottom_left or balle.x > (zone.bottom_left + zone.diagonal).x or balle.y > (zone.bottom_left + zone.diagonal).y) :
+            return self.defendre.compute_strategy(state, player, teamid)
+        else:
+            return self.aller.compute_strategy(state, player, teamid) 
+            
+            
+class Attaquant(SoccerStrategy):
+    def __init__(self):
+        self.attaquant = JoueurFonceur()
+    def compute_strategy(self,state,player,teamid):
+        balle = state.ball.position
+        moi = player.position
+        zone = zonesDanger(state)
+        basgauche = zone.bottom_left
+        hautdroit = basgauche + zone.diagonal
+        basdroit = Vector2D(basgauche.x + zone.diagonal.x, basgauche.y)
+        hautgauche = Vector2D(basgauche.x, basgauche.y + zone.diagonal.y)
+        distcoinbg = basgauche - moi
+        distcoinhg = hautgauche - moi
+        distcoinbd = basdroit - moi
+        distcoinhd = hautgauche - moi
+        deplacement = balle - moi
+        
+        if (moi.y < hautgauche.y and moi.y > basgauche.y):
+            if (teamid==1):
+                if(moi.distance(hautgauche) < moi.distance(basgauche)):
+                    shoot = Vector2D(moi.x, ((hautgauche-moi).y)+1)
+                else:
+                    shoot = Vector2D(moi.x, (basgauche-moi).y-1)
+            else:
+                if(moi.distance(hautdroit) < moi.distance(basdroit)):
+                    shoot = Vector2D(moi.x, (hautdroit-moi).y+1)
+                else:
+                    shoot = Vector2D(moi.x, (basdroit-moi).y-1)
+                
+        else: 
+            if (teamid==1):
+                shoot = Vector2D(moi.x, (hautdroit-moi).y)
+            else:
+                shoot = Vector2D((hautdroit-moi).x, moi.y)
+            
+        return SoccerAction(deplacement, shoot)
+            
+        if (teamid == 1):
+            if (moi.x > hautdroit.x):
+                return self.attaquant.compute_strategy(state, player, teamid)
+                
+        else: 
+            if (moi.x < hautgauche.x):
+                return self.attaquant.compute_strategy(state, player, teamid)
+                
+
+    
+                
+                
+                
+            
+        
+        
+        
+        
+        
+        
+        
+            
+
+            
+
+
             
